@@ -29,6 +29,7 @@ In your F<dist.ini>:
   changes   = 1            ; this is the default
   file      = README       ; this is the default
   report_versions = 1      ; this is the default
+  date_format     =        ; this is the default
 
 =head1 DEPENDENCIES
 
@@ -106,6 +107,20 @@ has changes => (
   default  => 1,
 );
 
+=attr date_format
+
+This is the DateTime CLDR format to use for the C<$date> variable in
+templates.  The default value is the empty string, which means to use
+the date exactly as it appeared in the F<Changes> file.
+
+=cut
+
+has date_format => (
+  is   => 'ro',
+  isa  => 'Str',
+  default  => '',
+);
+
 =attr file
 
 This is the name of a file to process with Text::Template in step 2.
@@ -154,12 +169,13 @@ sub setup_installer {
   my $changesFile = $files->grep(sub{ $_->name eq $changelog })->head
       or die "No $changelog file\n";
 
-  my ($release_date, $changes) = $self->check_Changes($changesFile);
+  my ($release_date, $changes, $release_datetime) = $self->check_Changes($changesFile);
 
   # Process template_files:
   my %data = (
      changes => $changes,
      date    => $release_date,
+     datetime=> $release_datetime,
      dist    => $self->zilla->name,
      meta    => $self->zilla->distmeta,
      t       => \$self,
@@ -204,6 +220,12 @@ has _release_date => (
   init_arg => undef,
 );
 
+has _release_datetime => (
+  is       => 'rw',
+  isa      => 'DateTime',
+  init_arg => undef,
+);
+
 sub before_release
 {
   my $self = shift;
@@ -212,7 +234,7 @@ sub before_release
 
   $self->log_fatal(["Invalid release date in %s: %s",
                     $self->changelog, $release_date ])
-      if not $release_date or $release_date =~ /^[[:upper:]]+$/;
+      if not $release_date or not $self->_release_datetime or $release_date =~ /^[[:upper:]]+$/;
 
 } # end before_release
 
@@ -220,7 +242,7 @@ sub before_release
 # Make sure that we've listed this release in Changes:
 #
 # Returns:
-#   A list (release_date, change_text)
+#   A list (release_date, change_text, release_datetime)
 
 sub check_Changes
 {
@@ -263,14 +285,33 @@ sub check_Changes
   # Report the results:
   die "ERROR: Can't find any versions in $file" unless $release_date;
 
+  $self->_release_date($release_date); # Remember it for before_release
+
+  require DateTime::Format::Natural;
+
+  my $parser = DateTime::Format::Natural->new(
+    format    => 'mm/dd/yy',
+    time_zone => 'local',
+  );
+
+  my $release_datetime = $parser->parse_datetime($release_date);
+  if ($parser->success) {
+    $self->_release_datetime($release_datetime); # Remember it for before_release
+  } else {
+    $self->log_debug("Unable to parse '${release_date}'");
+    $release_datetime = undef;
+  }
+
+  if ($release_datetime and $self->date_format) {
+    $release_date = $release_datetime->format_cldr($self->date_format);
+  }
+
   chomp $text;
 
   $self->log("Version $version released $release_date");
   $self->zilla->chrome->logger->log($text); # No prefix
 
-  $self->_release_date($release_date); # Remember it for before_release
-
-  return ($release_date, $text);
+  return ($release_date, $text, $release_datetime);
 } # end check_Changes
 
 #---------------------------------------------------------------------
@@ -570,7 +611,15 @@ major release immediately followed by a bugfix release.
 
 =item C<$date>
 
-The release date as it appeared in F<Changes>.
+The release date taken from F<Changes> and reformatted using L</date_format>.
+If C<date_format> is the empty string, or if the release date cannot
+be parsed as a date, this is the date exactly as it appears in
+F<Changes>.
+
+=item C<$datetime>
+
+The release date taken from F<Changes> as a L<DateTime> object, or
+C<undef> if the release date could not be parsed as a date.
 
 =item C<$dist>
 
@@ -628,8 +677,8 @@ this will be the same as C<$dist_version>.
 =back
 
 It also peforms a L<BeforeRelease|Dist::Zilla::Role::BeforeRelease>
-check to ensure that the release date in the changelog is not a single
-uppercase word.  (I set the date to NOT until I'm ready to release.)
+check to ensure that the release date in the changelog is a valid date.
+(I set the date to NOT until I'm ready to release.)
 
 =for Pod::Loom-omit
 CONFIGURATION AND ENVIRONMENT
