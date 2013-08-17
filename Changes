@@ -5,7 +5,7 @@ Some version numbers are skipped here because there were no changes
 to this plugin in that release of Dist-Zilla-Plugins-CJM.
 
 
-4.20   NOT
+4.20   2013-08-17
 	- now a separate distribution from Dist-Zilla-Plugins-CJM
 	- can now reformat date from Changes (add date_format parameter)
 
