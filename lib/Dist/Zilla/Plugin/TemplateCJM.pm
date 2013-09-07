@@ -17,7 +17,7 @@ package Dist::Zilla::Plugin::TemplateCJM;
 # ABSTRACT: Process templates, including version numbers & changes
 #---------------------------------------------------------------------
 
-our $VERSION = '4.20';
+our $VERSION = '4.21';
 # This file is part of {{$dist}} {{$dist_version}} ({{$date}})
 
 =head1 SYNOPSIS
@@ -287,6 +287,7 @@ sub check_Changes
 
   $self->_release_date($release_date); # Remember it for before_release
 
+  # Try to parse the release date:
   require DateTime::Format::Natural;
 
   my $parser = DateTime::Format::Natural->new(
@@ -294,7 +295,16 @@ sub check_Changes
     time_zone => 'local',
   );
 
-  my $release_datetime = $parser->parse_datetime($release_date);
+  # If the date is YYYY-MM-DD with optional time,
+  # you may have a release note after the date.
+  my $release_datetime = $parser->parse_datetime(
+    $release_date =~ m{
+      ^ ( \d{4}-\d\d-\d\d
+          (?: \s \d\d:\d\d (?: :\d\d)? )?
+        ) \b
+    }x ? "$1" : $release_date
+  );
+
   if ($parser->success) {
     $self->_release_datetime($release_datetime); # Remember it for before_release
   } else {
@@ -306,6 +316,7 @@ sub check_Changes
     $release_date = $release_datetime->format_cldr($self->date_format);
   }
 
+  # Return the results:
   chomp $text;
 
   $self->log("Version $version released $release_date");
