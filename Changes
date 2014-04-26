@@ -5,6 +5,9 @@ Some version numbers are skipped here because there were no changes
 to this plugin in that release of Dist-Zilla-Plugins-CJM.
 
 
+4.22   NOT
+	- can now handle non-ASCII Changes file with Dist::Zilla 5
+
 4.21   2013-09-07
 	- now allows release note if date conforms to CPAN::Changes::Spec
 

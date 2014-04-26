@@ -17,7 +17,7 @@ package Dist::Zilla::Plugin::TemplateCJM;
 # ABSTRACT: Process templates, including version numbers & changes
 #---------------------------------------------------------------------
 
-our $VERSION = '4.21';
+our $VERSION = '4.22';
 # This file is part of {{$dist}} {{$dist_version}} ({{$date}})
 
 =head1 SYNOPSIS
@@ -256,21 +256,23 @@ sub check_Changes
   my $list_releases = $self->changes;
 
   # Read the Changes file and find the line for dist_version:
-  open(my $Changes, '<', \$changesFile->content) or die;
+  my $changelog = $changesFile->content;
 
   my ($release_date, $text);
 
   my $re = $self->changelog_re;
 
-  while (<$Changes>) {
-    if (/^$re/) {
+  while ($changelog =~ m/(.*\n)/g) {
+    my $line = $1;
+    if ($line =~ /^$re/) {
       die "ERROR: $file begins with version $1, expected version $version"
           unless $1 eq $version;
       $release_date = $2;
       $text = '';
-      while (<$Changes>) {
-        last if /^\S/ and --$list_releases <= 0;
-        $text .= $_;
+      while ($changelog =~ m/(.*\n)/g) {
+        $line = $1;
+        last if $line =~ /^\S/ and --$list_releases <= 0;
+        $text .= $line;
       }
       $text =~ s/\A\s*\n//;     # Remove leading blank lines
       $text =~ s/\s*\z/\n/;     # Normalize trailing whitespace
@@ -280,7 +282,7 @@ sub check_Changes
     } # end if found the first version in Changes
   } # end while more lines in Changes
 
-  close $Changes;
+  undef $changelog;
 
   # Report the results:
   die "ERROR: Can't find any versions in $file" unless $release_date;

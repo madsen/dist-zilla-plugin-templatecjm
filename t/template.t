@@ -3,7 +3,8 @@
 
 use strict;
 use warnings;
-use Test::More 0.88 tests => 28; # done_testing
+use utf8;
+use Test::More 0.88 tests => 32; # done_testing
 
 use Test::DZil 'Builder';
 
@@ -390,6 +391,75 @@ END CHANGES
     $manual,
     qr{^\QThis document (DZT::Manual) describes DZT-Sample 0.04.\E\n}m,
     'release note VERSION in manual',
+  );
+}
+
+#---------------------------------------------------------------------
+{
+  my $tzil = Builder->from_config(
+    { dist_root => 'corpus/DZT' },
+    {
+      add_files => {
+        'source/dist.ini' => make_ini(
+          '0.02',
+          '[GatherDir]',
+          '[TemplateCJM]',
+        ),
+        'source/Changes' => <<'END CHANGES UTF-8',
+Revision history
+
+0.02   2010-03-29
+	- test “release”
+
+0.01   2010-03-15
+	- initial release
+END CHANGES UTF-8
+      },
+    },
+  );
+
+  $tzil->build;
+
+  my $readme = $tzil->slurp_file('build/README');
+  like(
+    $readme,
+    qr{\A\QDZT-Sample version 0.02, released 2010-03-29\E\n},
+    "UTF-8 date unchanged in README",
+  );
+
+  my $expected_depends = <<'END DEPEND';
+DEPENDENCIES
+
+  Package   Minimum Version
+  --------- ---------------
+  perl       5.8.0
+  Baz        1.2.3
+  Bloofle
+  Foo::Bar   1.00
+END DEPEND
+
+  like($readme, make_re($expected_depends), "UTF-8 DEPENDENCIES in README");
+
+  my $expected_changes = <<'END CHANGES';
+CHANGES
+    Here's what's new in version 0.02 of DZT-Sample:
+    (See the file "Changes" for the full revision history.)
+
+	- test “release”
+
+
+END CHANGES
+
+  like($readme, make_re($expected_changes), "UTF-8 CHANGES in README");
+
+  undef $readme;
+
+  my $module = $tzil->slurp_file('build/lib/DZT/Sample.pm');
+
+  like(
+    $module,
+    qr{^\Q# This file is part of DZT-Sample 0.02 (2010-03-29)\E\n}m,
+    'UTF-8 comment in module',
   );
 }
 
