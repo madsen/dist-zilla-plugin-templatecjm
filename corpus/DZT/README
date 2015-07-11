@@ -3,6 +3,9 @@
 
 Blah blah blah.
 
+File: {{$filename}}
+Path: {{$pathname}}
+
 
 
 INSTALLATION

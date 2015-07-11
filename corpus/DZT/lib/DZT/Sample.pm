@@ -12,6 +12,9 @@ use warnings;
 our $VERSION = '0.04';
 # This file is part of {{$dist}} {{$dist_version}} ({{$date}})
 
+# File: {{$filename}}
+# Path: {{$pathname}}
+
 =attr bogus
 
 Don't have this.

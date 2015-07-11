@@ -4,7 +4,7 @@
 use strict;
 use warnings;
 use utf8;
-use Test::More 0.88 tests => 32; # done_testing
+use Test::More 0.88 tests => 56; # done_testing
 
 use Test::DZil 'Builder';
 
@@ -82,6 +82,9 @@ sub make_re
     "English date first line of README",
   );
 
+  like($readme, qr{^File: README\n}m, "English date filename correct in README");
+  like($readme, qr{^Path: README\n}m, "English date pathname correct in README");
+
   my $expected_depends = <<'END DEPEND';
 DEPENDENCIES
 
@@ -131,12 +134,36 @@ END CHANGES
     'English date POD in module',
   );
 
+  like(
+    $module,
+    qr{^# File: Sample\.pm\n}m,
+    "English date filename correct in module"
+  );
+
+  like(
+    $module,
+    qr{^# Path: lib/DZT/Sample\.pm\n}m,
+    "English date pathname correct in module"
+  );
+
   my $manual = $tzil->slurp_file('build/lib/DZT/Manual.pod');
 
   like(
     $manual,
     qr{^\QThis document (DZT::Manual) describes DZT-Sample 0.04.\E\n}m,
     'English date VERSION in manual',
+  );
+
+  like(
+    $manual,
+    qr{^File: Manual\.pod\n}m,
+    "English date filename correct in manual"
+  );
+
+  like(
+    $manual,
+    qr{^Path: lib/DZT/Manual\.pod\n}m,
+    "English date pathname correct in manual"
   );
 }
 
@@ -164,6 +191,9 @@ END CHANGES
     qr{\A\QDZT-Sample version 0.04, released 2010-03-29\E\n},
     "spec date first line of README",
   );
+
+  like($readme, qr{^File: README\n}m, "spec date filename correct in README");
+  like($readme, qr{^Path: README\n}m, "spec date pathname correct in README");
 
   my $expected_depends = <<'END DEPEND';
 DEPENDENCIES
@@ -214,12 +244,36 @@ END CHANGES
     'spec date POD in module',
   );
 
+  like(
+    $module,
+    qr{^# File: Sample\.pm\n}m,
+    "spec date filename correct in module"
+  );
+
+  like(
+    $module,
+    qr{^# Path: lib/DZT/Sample\.pm\n}m,
+    "spec date pathname correct in module"
+  );
+
   my $manual = $tzil->slurp_file('build/lib/DZT/Manual.pod');
 
   like(
     $manual,
     qr{^\QThis document (DZT::Manual) describes DZT-Sample 0.04.\E\n}m,
     'spec date VERSION in manual',
+  );
+
+  like(
+    $manual,
+    qr{^File: Manual\.pod\n}m,
+    "spec date filename correct in manual"
+  );
+
+  like(
+    $manual,
+    qr{^Path: lib/DZT/Manual\.pod\n}m,
+    "spec date pathname correct in manual"
   );
 }
 
@@ -248,6 +302,11 @@ END CHANGES
     qr{\A\QDZT-Sample version 0.04, released March 29, 2010\E\n},
     "reformatted date first line of README",
   );
+
+  like($readme, qr{^File: README\n}m,
+       "reformatted date filename correct in README");
+  like($readme, qr{^Path: README\n}m,
+       "reformatted date pathname correct in README");
 
   my $expected_depends = <<'END DEPEND';
 DEPENDENCIES
@@ -298,12 +357,36 @@ END CHANGES
     'reformatted date POD in module',
   );
 
+  like(
+    $module,
+    qr{^# File: Sample\.pm\n}m,
+    "reformatted date filename correct in module"
+  );
+
+  like(
+    $module,
+    qr{^# Path: lib/DZT/Sample\.pm\n}m,
+    "reformatted date pathname correct in module"
+  );
+
   my $manual = $tzil->slurp_file('build/lib/DZT/Manual.pod');
 
   like(
     $manual,
     qr{^\QThis document (DZT::Manual) describes DZT-Sample 0.04.\E\n}m,
     'reformatted date VERSION in manual',
+  );
+
+  like(
+    $manual,
+    qr{^File: Manual\.pod\n}m,
+    "reformatted date filename correct in manual"
+  );
+
+  like(
+    $manual,
+    qr{^Path: lib/DZT/Manual\.pod\n}m,
+    "reformatted date pathname correct in manual"
   );
 }
 
@@ -335,6 +418,9 @@ END CHANGES
     qr{\A\QDZT-Sample version 0.04, released March 29, 2010\E\n},
     "release note first line of README",
   );
+
+  like($readme, qr{^File: README\n}m, "release note filename correct in README");
+  like($readme, qr{^Path: README\n}m, "release note pathname correct in README");
 
   my $expected_depends = <<'END DEPEND';
 DEPENDENCIES
@@ -385,12 +471,36 @@ END CHANGES
     'release note POD in module',
   );
 
+  like(
+    $module,
+    qr{^# File: Sample\.pm\n}m,
+    "release note date filename correct in module"
+  );
+
+  like(
+    $module,
+    qr{^# Path: lib/DZT/Sample\.pm\n}m,
+    "release note date pathname correct in module"
+  );
+
   my $manual = $tzil->slurp_file('build/lib/DZT/Manual.pod');
 
   like(
     $manual,
     qr{^\QThis document (DZT::Manual) describes DZT-Sample 0.04.\E\n}m,
     'release note VERSION in manual',
+  );
+
+  like(
+    $manual,
+    qr{^File: Manual\.pod\n}m,
+    "release note date filename correct in manual"
+  );
+
+  like(
+    $manual,
+    qr{^Path: lib/DZT/Manual\.pod\n}m,
+    "release note date pathname correct in manual"
   );
 }
 
