@@ -17,7 +17,7 @@ package Dist::Zilla::Plugin::TemplateCJM;
 # ABSTRACT: Process templates, including version numbers & changes
 #---------------------------------------------------------------------
 
-our $VERSION = '4.22';
+our $VERSION = '4.23';
 # This file is part of {{$dist}} {{$dist_version}} ({{$date}})
 
 =head1 SYNOPSIS
@@ -200,6 +200,7 @@ sub setup_installer {
     $self->log('Processing ' . $file->name);
     $self->_cur_filename($file->name);
     $self->_cur_offset(0);
+    $self->_store_pathname(\%data, $file);
     $file->content($self->fill_in_string($file->content, \%data, \%parms));
   } # end foreach $file
 
@@ -210,6 +211,17 @@ sub setup_installer {
     $self->munge_file($file, \%data, \%parms);
   } # end foreach $file
 } # end setup_installer
+
+#---------------------------------------------------------------------
+# Store pathname and filename in the data hash
+
+sub _store_pathname
+{
+  my ($self, $dataRef, $file) = @_;
+
+  $dataRef->{pathname} = $dataRef->{filename} = $file->name;
+  $dataRef->{filename} =~ s!^.*/!!s; # Strip directory names
+} # end _store_pathname
 
 #---------------------------------------------------------------------
 # Make sure we have a release date:
@@ -354,6 +366,7 @@ sub munge_file
   $dataRef->{version} = "$version";
   $dataRef->{module}  = $pm_info->name || $dataRef->{module};
   $dataRef->{pm_info} = \$pm_info;
+  $self->_store_pathname($dataRef, $file);
 
   $parmsRef->{FILENAME} = $pmFile;
 
@@ -638,9 +651,19 @@ C<undef> if the release date could not be parsed as a date.
 
 The name of the distribution.
 
+=item C<$filename>
+
+The filename of the file being processed, with any directory names omitted.
+See also C<$pathname>.
+
 =item C<%meta>
 
 The hash of metadata that will be stored in F<META.yml>.
+
+=item C<$pathname>
+
+The pathname of the file being processed, relative to the distribution
+root in Unix format (forward slashes).  See also C<$filename>.
 
 =item C<$t>
 
