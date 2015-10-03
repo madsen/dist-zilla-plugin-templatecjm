@@ -7,11 +7,11 @@ to this plugin in that release of Dist-Zilla-Plugins-CJM.
 
 4.24   2015-10-03
 	- Module::Metadata 1.000028 returns "main" as the package
-          of a pure-POD file with no package statement (while
-          previous versions returned the empty string).  TemplateCJM
-          now handles either case, substituting a module name derived
-          from the filename.
-          (TemplateCJM 4.12-4.23 do that only with pre-1.000028)
+	  of a pure-POD file with no package statement (while
+	  previous versions returned the empty string).	 TemplateCJM
+	  now handles either case, substituting a module name derived
+	  from the filename.
+	  (TemplateCJM 4.12-4.23 do that only with pre-1.000028)
 
 4.23   2015-07-11
 	- add $filename and $pathname as available template variables
