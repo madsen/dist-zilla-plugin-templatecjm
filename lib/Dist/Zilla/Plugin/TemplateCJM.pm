@@ -17,7 +17,7 @@ package Dist::Zilla::Plugin::TemplateCJM;
 # ABSTRACT: Process templates, including version numbers & changes
 #---------------------------------------------------------------------
 
-our $VERSION = '4.23';
+our $VERSION = '4.24';
 # This file is part of {{$dist}} {{$dist_version}} ({{$date}})
 
 =head1 SYNOPSIS
@@ -355,6 +355,8 @@ sub munge_file
   if (not $version and $pmFile =~ m!^lib/(.+)\.pod$!) {
     ($dataRef->{module} = $1) =~ s!/!::!g;
     $version = $dataRef->{dist_version};
+  } else {
+    $dataRef->{module} = $pm_info->name;
   }
 
   die "ERROR: Can't find version in $pmFile" unless $version;
@@ -364,7 +366,6 @@ sub munge_file
   $self->$log_method("$pmFile: VERSION $version");
 
   $dataRef->{version} = "$version";
-  $dataRef->{module}  = $pm_info->name || $dataRef->{module};
   $dataRef->{pm_info} = \$pm_info;
   $self->_store_pathname($dataRef, $file);
 
