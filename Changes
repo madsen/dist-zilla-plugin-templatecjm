@@ -5,6 +5,10 @@ Some version numbers are skipped here because there were no changes
 to this plugin in that release of Dist-Zilla-Plugins-CJM.
 
 
+5.000  NOT
+	- drop support for Dist::Zilla 4.
+	  (Tests were failing, and Dist::Zilla 5 is 2 years old now.)
+
 4.24   2015-10-03
 	- Module::Metadata 1.000028 returns "main" as the package
 	  of a pure-POD file with no package statement (while
