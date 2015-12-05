@@ -5,7 +5,7 @@ Some version numbers are skipped here because there were no changes
 to this plugin in that release of Dist-Zilla-Plugins-CJM.
 
 
-5.000  NOT
+5.000  2015-12-05
 	- don't "use Moose::Autobox" (Dist::Zilla doesn't use it anymore)
 	- drop support for Dist::Zilla 4.
 	  (Tests were failing, and Dist::Zilla 5 is 2 years old now.)
