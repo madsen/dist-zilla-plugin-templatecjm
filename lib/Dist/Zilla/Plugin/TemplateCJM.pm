@@ -41,7 +41,6 @@ will help catch errors in your templates.
 =cut
 
 use Moose;
-use Moose::Autobox;
 use Moose::Util::TypeConstraints;
 use List::Util ();
 
@@ -166,7 +165,7 @@ sub setup_installer {
 
   # Get release date & changes from Changes file:
   my $changelog = $self->changelog;
-  my $changesFile = $files->grep(sub{ $_->name eq $changelog })->head
+  my $changesFile = List::Util::first { $_->name eq $changelog } @$files
       or die "No $changelog file\n";
 
   my ($release_date, $changes, $release_datetime) = $self->check_Changes($changesFile);
@@ -194,9 +193,10 @@ sub setup_installer {
     BROKEN => sub { $self->template_error(@_) },
   );
 
-  my $any = $self->template_files->any;
+  my %template_file = map {; $_ => 1 } @{ $self->template_files };
 
-  foreach my $file ($files->grep(sub { $_->name eq $any })->flatten) {
+  foreach my $file (@$files) {
+    next unless $template_file{ $file->name };
     $self->log('Processing ' . $file->name);
     $self->_cur_filename($file->name);
     $self->_cur_offset(0);
@@ -207,7 +207,7 @@ sub setup_installer {
   # Munge POD sections in modules:
   $files = $self->found_files;
 
-  foreach my $file ($files->flatten) {
+  foreach my $file (@$files) {
     $self->munge_file($file, \%data, \%parms);
   } # end foreach $file
 } # end setup_installer
@@ -436,10 +436,11 @@ sub build_instructions
   $indent = "\t" unless defined $indent;
 
   # Compute build instructions:
-  my $builder = $self->zilla->files
-                     ->map(sub{ $_->name })
-                     ->grep(sub{ /^(?:Build|Makefile)\.PL$/ })
-                     ->sort->head;
+  my ($builder) =
+      sort
+      grep { /^(?:Build|Makefile)\.PL$/ }
+      map { $_->name }
+      @{ $self->zilla->files };
 
   $self->log_fatal("Unable to locate Build.PL or Makefile.PL in distribution\n".
                    "TemplateCJM must come after ModuleBuild or MakeMaker")
