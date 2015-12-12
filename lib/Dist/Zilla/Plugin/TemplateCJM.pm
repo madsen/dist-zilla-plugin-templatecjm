@@ -17,7 +17,7 @@ package Dist::Zilla::Plugin::TemplateCJM;
 # ABSTRACT: Process templates, including version numbers & changes
 #---------------------------------------------------------------------
 
-our $VERSION = '5.000';
+our $VERSION = '5.001';
 # This file is part of {{$dist}} {{$dist_version}} ({{$date}})
 
 =head1 SYNOPSIS
@@ -82,11 +82,15 @@ whitespace.
 
 =cut
 
-coerce 'RegexpRef', from 'Str', via { qr/$_/ };
+use constant _CoercedRegexp => do {
+    my $tc = subtype as 'RegexpRef';
+    coerce $tc, from 'Str', via { qr/$_/ };
+    $tc;
+};
 
 has changelog_re => (
   is   => 'ro',
-  isa  => 'RegexpRef',
+  isa  => _CoercedRegexp,
   coerce   => 1,
   default  => sub { qr/(\d[\d._]*)\s+(.+)/ },
 );

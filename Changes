@@ -5,6 +5,9 @@ Some version numbers are skipped here because there were no changes
 to this plugin in that release of Dist-Zilla-Plugins-CJM.
 
 
+5.001  NOT
+	- don't add coercions to named types
+
 5.000  2015-12-05
 	- don't "use Moose::Autobox" (Dist::Zilla doesn't use it anymore)
 	- drop support for Dist::Zilla 4.
